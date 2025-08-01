@@ -11,7 +11,7 @@ interface CSSParticle {
   y: number;
   dx: number;
   dy: number;
-  color: string;
+  emoji: string;
   size: number;
   delay: number;
 }
@@ -24,7 +24,8 @@ export const ParticlesContainer = forwardRef<ParticlesContainerRef, {}>((_, ref)
       console.log(`Creating CSS explosion at ${x}, ${y}`);
       
       const newParticles: CSSParticle[] = [];
-      const colors = ['#ffffff', '#ffdd44', '#ff4444', '#44ff44', '#4444ff', '#ff44ff'];
+      // Only the requested emojis
+      const emojis = ['⚖️', '📖', '💥'];
       
       // Create 30 particles
       for (let i = 0; i < 30; i++) {
@@ -39,8 +40,8 @@ export const ParticlesContainer = forwardRef<ParticlesContainerRef, {}>((_, ref)
           y: y,
           dx: dx,
           dy: dy,
-          color: colors[Math.floor(Math.random() * colors.length)],
-          size: Math.random() * 8 + 4,
+          emoji: emojis[Math.floor(Math.random() * emojis.length)],
+          size: Math.random() * 20 + 16, // Larger for emojis (16-36px)
           delay: Math.random() * 200, // Stagger the animations
         });
       }
@@ -59,9 +60,13 @@ export const ParticlesContainer = forwardRef<ParticlesContainerRef, {}>((_, ref)
       <style>{`
         .css-particle {
           position: fixed;
-          border-radius: 50%;
           pointer-events: none;
           z-index: 2;
+          display: flex;
+          align-items: center;
+          justify-content: center;
+          font-size: var(--size);
+          text-shadow: 0 0 10px rgba(255, 255, 255, 0.8);
           animation: 
             particle-move 3s cubic-bezier(0.165, 0.84, 0.44, 1) forwards,
             particle-fade 3s ease-out forwards;
@@ -72,25 +77,25 @@ export const ParticlesContainer = forwardRef<ParticlesContainerRef, {}>((_, ref)
             transform: translate(0, 0) scale(1) rotate(0deg);
           }
           50% {
-            transform: translate(calc(var(--dx) * 0.7), calc(var(--dy) * 0.6)) scale(0.8) rotate(180deg);
+            transform: translate(calc(var(--dx) * 0.7), calc(var(--dy) * 0.6)) scale(0.9) rotate(180deg);
           }
           100% {
-            transform: translate(var(--dx), calc(var(--dy) + 60px)) scale(0.3) rotate(360deg);
+            transform: translate(var(--dx), calc(var(--dy) + 60px)) scale(0.4) rotate(360deg);
           }
         }
         
         @keyframes particle-fade {
           0% { 
             opacity: 1; 
-            filter: brightness(1.2);
+            filter: brightness(1.3) contrast(1.2);
           }
           60% { 
-            opacity: 0.8; 
-            filter: brightness(1);
+            opacity: 0.9; 
+            filter: brightness(1.1) contrast(1.1);
           }
           100% { 
             opacity: 0; 
-            filter: brightness(0.5);
+            filter: brightness(0.8) contrast(0.8);
           }
         }
       `}</style>
@@ -104,13 +109,14 @@ export const ParticlesContainer = forwardRef<ParticlesContainerRef, {}>((_, ref)
             top: particle.y - particle.size / 2,
             width: particle.size,
             height: particle.size,
-            backgroundColor: particle.color,
-            boxShadow: `0 0 ${particle.size * 2}px ${particle.color}`,
             animationDelay: `${particle.delay}ms`,
             '--dx': `${particle.dx}px`,
             '--dy': `${particle.dy}px`,
-          } as React.CSSProperties & { '--dx': string; '--dy': string }}
-        />
+            '--size': `${particle.size}px`,
+          } as React.CSSProperties & { '--dx': string; '--dy': string; '--size': string }}
+        >
+          {particle.emoji}
+        </div>
       ))}
     </>
   );
